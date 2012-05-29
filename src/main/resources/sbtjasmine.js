@@ -29,7 +29,7 @@ EnvJasmine.normalizePath = function(path) {
     var endsInSlash = (path.slice(-1) == "/");
 
     if (path.slice(0, 1) == ".") {
-        path = EnvJasmine.rootDir + "/" + path;
+        path = EnvJasmine.rootDir + path;
     }
 
     return File(path).getCanonicalPath() + (endsInSlash ? "/" : "");
@@ -73,10 +73,10 @@ EnvJasmine.environment = 'UNIX';
 
 function setupDirs(appJsRoot, appJsLibRoot, testRoot, confFile) {
 
-    EnvJasmine.testDir = EnvJasmine.normalizePath(testRoot);
-    EnvJasmine.mocksDir = EnvJasmine.normalizePath(EnvJasmine.testDir + "/mocks/");
-    EnvJasmine.specsDir = EnvJasmine.normalizePath(EnvJasmine.testDir + "/specs/");
-    EnvJasmine.rootDir = EnvJasmine.normalizePath(appJsRoot);
+    EnvJasmine.testDir = EnvJasmine.normalizePath(testRoot + "/");
+    EnvJasmine.mocksDir = EnvJasmine.normalizePath(EnvJasmine.testDir + "mocks/");
+    EnvJasmine.specsDir = EnvJasmine.normalizePath(EnvJasmine.testDir + "specs/");
+    EnvJasmine.rootDir = EnvJasmine.normalizePath(appJsRoot + "/");
     EnvJasmine.libDir = EnvJasmine.normalizePath(appJsLibRoot + "/");
 
     // This is the standard spec suffix
