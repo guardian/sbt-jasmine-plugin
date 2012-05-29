@@ -44,7 +44,7 @@ EnvJasmine.loadFactory = function(scope) {
             fileIn = new FileReader(normalizedPath);
             EnvJasmine.cx.evaluateReader(scope, fileIn, normalizedPath, 0, null);
         } catch (e) {
-            print('Could not read file: ' + normalizedPath );
+            print('Could not read file: ' + normalizedPath + "\n error was: " + e );
         } finally {
             fileIn.close();
         }
@@ -59,7 +59,7 @@ EnvJasmine.resourceLoadFactory = function(scope) {
             reader = new BundledLibraryReaderFactory(path).reader();
             EnvJasmine.cx.evaluateReader(scope, reader, path, 0, null);
         } catch (e) {
-            print('Could not read resource: ' + path + "\n" + e );
+            print('Could not read resource: ' + path + "\n error was: " + e );
         } finally {
             reader.close();
         }
