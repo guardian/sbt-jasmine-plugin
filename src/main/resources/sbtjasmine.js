@@ -169,8 +169,12 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile) {
             EnvJasmine.specFile = EnvJasmine.specs[i];
             print("running spec:" + EnvJasmine.specFile);
             fileIn = new FileReader(EnvJasmine.specFile);
+            print("loading spec file");
             EnvJasmine.cx.evaluateReader(EnvJasmine.currentScope, fileIn, EnvJasmine.specs[i], 0, null);
+            print("running the jasmine tests");
             EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, 'jasmine.getEnv().execute();', 'Executing '+EnvJasmine.specs[i], 0, null);
+        } catch (e) {
+            print('error running jasmine test: ' + EnvJasmine.specs[i] + "\n error was: " + e );
         }
         finally {
             fileIn.close();
