@@ -141,6 +141,7 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile) {
     }
 
     jasmine.getEnv().addReporter(new EnvJasmine.reporterClass());
+    jasmine.getEnv().updateInterval = 0; // do not yield.
 
     if (EnvJasmine.suppressConsoleMsgs === true) {
         // suppress console messages
