@@ -90,7 +90,7 @@ object SbtJasminePlugin extends Plugin {
   def generateSpecIncludes(testRoot: File) = {
     val specsDir = testRoot / "specs" ** "*spec.js"
 
-    specsDir.get.map("""<script type="text/javascript" src="file://""" + _.getAbsolutePath + """"></script>""").mkString("\n")
+    specsDir.get.map("""<script type="text/javascript" src="""" + _.getAbsolutePath + """"></script>""").mkString("\n")
   }
 
   def bundledScript(fileName: String) = {

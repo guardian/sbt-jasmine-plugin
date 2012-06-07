@@ -16,29 +16,26 @@
             this.EnvJasmine = {};
         }
 
-        EnvJasmine.testDir = "file://%s" + "/";
+        EnvJasmine.testDir = "%s" + "/";
         EnvJasmine.mocksDir = EnvJasmine.testDir + "mocks/";
         EnvJasmine.specsDir = EnvJasmine.testDir + "specs/";
-        EnvJasmine.rootDir = "file://%s" + "/";
-        EnvJasmine.libDir = "file://%s" + "/";
+        EnvJasmine.rootDir = "%s" + "/";
+        EnvJasmine.libDir = "%s" + "/";
 
         function load(fileUrl) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', fileUrl, false);
-            xhr.send('');
-
+            var headTag = document.getElementsByTagName('HEAD').item(0);
             var scriptTag = document.createElement('script');
             scriptTag.type = "text/javascript";
-            scriptTag.text = xhr.responseText;
-
-            document.getElementsByTagName('head')[0].appendChild(scriptTag);
+            scriptTag.src=fileUrl;
+            scriptTag.async=false;
+            headTag.appendChild( scriptTag );
         }
 
         EnvJasmine.load = load;
         EnvJasmine.loadGlobal = load;
     </script>
 
-    <script type="text/javascript" src="file://%s"></script>
+    <script type="text/javascript" src="%s"></script>
 
     %s
 
@@ -46,8 +43,10 @@
 <body>
 
 <script type="text/javascript">
-    jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-    jasmine.getEnv().execute();
+    window.onload = function() {
+        jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+        jasmine.getEnv().execute();
+    }
 </script>
 
 </body>
