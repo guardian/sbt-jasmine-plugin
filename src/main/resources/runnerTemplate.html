@@ -16,25 +16,29 @@
             this.EnvJasmine = {};
         }
 
-        EnvJasmine.testDir = "%s" + "/";
+        EnvJasmine.testDir = "file://%s" + "/";
         EnvJasmine.mocksDir = EnvJasmine.testDir + "mocks/";
         EnvJasmine.specsDir = EnvJasmine.testDir + "specs/";
-        EnvJasmine.rootDir = "%s" + "/";
-        EnvJasmine.libDir = "%s" + "/";
+        EnvJasmine.rootDir = "file://%s" + "/";
+        EnvJasmine.libDir = "file://%s" + "/";
 
         function load(fileUrl) {
-            var headTag = document.getElementsByTagName('HEAD').item(0);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', fileUrl, false);
+            xhr.send('');
+
             var scriptTag = document.createElement('script');
             scriptTag.type = "text/javascript";
-            scriptTag.src=fileUrl;
-            headTag.appendChild( scriptTag );
+            scriptTag.text = xhr.responseText;
+
+            document.getElementsByTagName('head')[0].appendChild(scriptTag);
         }
 
         EnvJasmine.load = load;
         EnvJasmine.loadGlobal = load;
     </script>
 
-    <script type="text/javascript" src="%s"></script>
+    <script type="text/javascript" src="file://%s"></script>
 
     %s
 
