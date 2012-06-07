@@ -16,6 +16,9 @@ object SbtJasminePlugin extends Plugin {
   lazy val jasmineConfFile = SettingKey[Seq[File]]("jasmineConfFile", "the js file that loads your js context and configures jasmine")
   lazy val jasmine = TaskKey[Unit]("jasmine", "Run jasmine tests")
 
+  lazy val jasmineRunnerOutputDir = SettingKey[File]("jasmineRunnerOutputDir", "directory to output jasmine runner.")
+  lazy val jasmineGenRunner = TaskKey[Unit]("jasmine-gen-runner", "Generates a jasmine test runner html page.")
+
   def jasmineTask = (jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
 
     s.log.info("running jasmine...")
@@ -46,6 +49,50 @@ object SbtJasminePlugin extends Plugin {
     if (errorCount > 0) throw new JasmineFailedException(errorCount.toInt)
   }
 
+  def jasmineGenRunnerTask = (jasmineRunnerOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
+
+    s.log.info("generating runner...")
+
+    outputBundledResource("jasmine/jasmine.js", outDir / "jasmine.js")
+    outputBundledResource("jasmine/jasmine-html.js", outDir / "jasmine-html.js")
+    outputBundledResource("jasmine/jasmine.css", outDir / "jasmine.css")
+
+    for {
+      testRoot <- testJsRoots
+      appJsRoot <- appJsRoots
+      appJsLibRoot <- appJsLibRoots
+      conf <- confs
+    } {
+      val runnerString = loadRunnerTemplate.format(
+        testRoot.getAbsolutePath,
+        appJsRoot.getAbsolutePath,
+        appJsLibRoot.getAbsolutePath,
+        conf.getAbsolutePath,
+        generateSpecIncludes(testRoot)
+      )
+
+      IO.write(outDir / "runner.html", runnerString)
+
+    }
+    s.log.info("output to: file://" + (outDir / "runner.html" getAbsolutePath) )
+
+  }
+
+  def loadRunnerTemplate = {
+    val cl = this.getClass.getClassLoader
+    val is = cl.getResourceAsStream("runnerTemplate.html")
+    val template = scala.io.Source.fromInputStream(is).getLines().mkString("\n")
+
+    is.close
+    template
+  }
+
+  def generateSpecIncludes(testRoot: File) = {
+    val specsDir = testRoot / "specs" ** "*spec.js"
+
+    specsDir.get.map("""<script type="text/javascript" src="""" + _.getAbsolutePath + """"></script>""").mkString("\n")
+  }
+
   def bundledScript(fileName: String) = {
     val cl = this.getClass.getClassLoader
     val is = cl.getResourceAsStream(fileName)
@@ -53,12 +100,25 @@ object SbtJasminePlugin extends Plugin {
     new InputStreamReader(is)
   }
 
+  def outputBundledResource(resourcePath: String, outputPath: File) {
+    try {
+      val cl = this.getClass.getClassLoader
+      val is = cl.getResourceAsStream(resourcePath)
+
+      IO.transfer(is, outputPath)
+      is.close()
+    }
+
+  }
+
   val jasmineSettings: Seq[Project.Setting[_]] = Seq(
     jasmine <<= jasmineTask,
     appJsDir := Seq(),
     appJsLibDir := Seq(),
     jasmineTestDir := Seq(),
-    jasmineConfFile := Seq()
+    jasmineConfFile := Seq(),
+    jasmineGenRunner <<= jasmineGenRunnerTask,
+    jasmineRunnerOutputDir <<= (target in test) { d => d / "jasmine"}
   )
 }
 
