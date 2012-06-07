@@ -102,7 +102,7 @@ Generating an html runner page
 ------------------------------
 
 If you need to run your jasmine tests in a browser (for example if, heaven forbid, you have failing tests and want to dubug them)
-you can run the ```jasmin-gen-runner``` task, this will output a runner html file that you can load in a browser to run your jasmine tests.
+you can run the ```jasmine-gen-runner``` task, this will output a runner html file that you can load in a browser to run your jasmine tests.
 A link to the output runner file is output in the sbt console.
 
 Release
