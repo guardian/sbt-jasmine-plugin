@@ -1,6 +1,7 @@
 
 // loads all the jasmine support library files
 
+EnvJasmine.loadLibGlobal("rjs/r-2.0.1.js");
 EnvJasmine.loadLibGlobal("envjs/env.rhino.1.2.js");
 EnvJasmine.loadLibGlobal("jasmine/jasmine.js");
 EnvJasmine.loadLibGlobal("jasmine-ajax/mock-ajax.js");

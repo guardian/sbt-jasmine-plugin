@@ -16,10 +16,10 @@ object SbtJasminePlugin extends Plugin {
   lazy val jasmineConfFile = SettingKey[Seq[File]]("jasmineConfFile", "the js file that loads your js context and configures jasmine")
   lazy val jasmine = TaskKey[Unit]("jasmine", "Run jasmine tests")
 
-  lazy val jasmineRunnerOutputDir = SettingKey[File]("jasmineRunnerOutputDir", "directory to output jasmine runner.")
+  lazy val jasmineOutputDir = SettingKey[File]("jasmineOutputDir", "directory to output jasmine files to.")
   lazy val jasmineGenRunner = TaskKey[Unit]("jasmine-gen-runner", "Generates a jasmine test runner html page.")
 
-  def jasmineTask = (jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
+  def jasmineTask = (jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, jasmineOutputDir, streams) map { (testJsRoots, appJsRoots, appJsLibRoots, confs, outDir, s) =>
 
     s.log.info("running jasmine...")
 
@@ -33,7 +33,11 @@ object SbtJasminePlugin extends Plugin {
       val scope = new Global()
       scope.init(jscontext)
 
+      jscontext.evaluateString(scope, "var arguments = [];", "Evil Hack to simulate command-line args to help r.js", 0, null)
       jscontext.evaluateReader(scope, bundledScript("sbtjasmine.js"), "sbtjasmine.js", 1, null)
+
+      val jasmineEnvHtml = outDir / "jasmineEnv.html"
+      outputBundledResource("jasmineEnv.html", jasmineEnvHtml)
 
       // js func = function runTests(appJsRoot, appJsLibRoot, testRoot, confFile)
       val runTestFunc = scope.get("runTests", scope).asInstanceOf[JsFunction]
@@ -41,7 +45,8 @@ object SbtJasminePlugin extends Plugin {
         appJsRoot.getAbsolutePath,
         appJsLibRoot.getAbsolutePath,
         testRoot.getAbsolutePath,
-        conf.getAbsolutePath))
+        conf.getAbsolutePath,
+        jasmineEnvHtml.getAbsolutePath))
       errorsInfile.asInstanceOf[Double]
     }
 
@@ -49,7 +54,7 @@ object SbtJasminePlugin extends Plugin {
     if (errorCount > 0) throw new JasmineFailedException(errorCount.toInt)
   }
 
-  def jasmineGenRunnerTask = (jasmineRunnerOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
+  def jasmineGenRunnerTask = (jasmineOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
 
     s.log.info("generating runner...")
 
@@ -118,7 +123,7 @@ object SbtJasminePlugin extends Plugin {
     jasmineTestDir := Seq(),
     jasmineConfFile := Seq(),
     jasmineGenRunner <<= jasmineGenRunnerTask,
-    jasmineRunnerOutputDir <<= (target in test) { d => d / "jasmine"}
+    jasmineOutputDir <<= (target in test) { d => d / "jasmine"}
   )
 }
 

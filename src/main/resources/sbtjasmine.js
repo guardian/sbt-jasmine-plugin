@@ -123,7 +123,7 @@ EnvJasmine.loadConfig = function () {
     EnvJasmine.loadGlobal(EnvJasmine.configFile);
 };
 
-function runTests(appJsRoot, appJsLibRoot, testRoot, confFile) {
+function runTests(appJsRoot, appJsLibRoot, testRoot, confFile, envHtml) {
     var i, fileIn, len;
 
     setupDirs(appJsRoot, appJsLibRoot, testRoot, confFile);
@@ -173,7 +173,8 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile) {
             print("loading spec file");
             EnvJasmine.cx.evaluateReader(EnvJasmine.currentScope, fileIn, EnvJasmine.specs[i], 0, null);
             print("running the jasmine tests");
-            EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, 'jasmine.getEnv().execute();', 'Executing '+EnvJasmine.specs[i], 0, null);
+            var windowLoader = 'window.location.assign(["file://", "'+envHtml+'"].join(EnvJasmine.SEPARATOR));';
+            EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, windowLoader, 'Executing '+EnvJasmine.specs[i], 0, null);
         } catch (e) {
             print('error running jasmine test: ' + EnvJasmine.specs[i] + "\n error was: " + e );
         }
