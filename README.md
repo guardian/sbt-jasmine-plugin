@@ -69,6 +69,8 @@ jasmineConfFile <+= sourceDirectory { src => src / "test" / "webapp" / "static" 
 
 You can now run the jasmine task to run the tests.
 
+See [sbt-jasmine-example](https://github.com/guardian/sbt-jasmine-example) for a full working example project.
+
 
 Paths exposed to your tests
 ---------------------------
