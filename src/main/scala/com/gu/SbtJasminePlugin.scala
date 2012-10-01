@@ -14,6 +14,7 @@ object SbtJasminePlugin extends Plugin {
   lazy val appJsDir = SettingKey[Seq[File]]("appJsDir", "the root directory where the application js files live")
   lazy val appJsLibDir = SettingKey[Seq[File]]("appJsLibDir", "the root directory where the application's js library files live")
   lazy val jasmineConfFile = SettingKey[Seq[File]]("jasmineConfFile", "the js file that loads your js context and configures jasmine")
+  lazy val jasmineRequireConfFile = SettingKey[Seq[File]]("jasmineRequireConfFile", "the js file that configures require to find your dependencies")
   lazy val jasmine = TaskKey[Unit]("jasmine", "Run jasmine tests")
 
   lazy val jasmineOutputDir = SettingKey[File]("jasmineOutputDir", "directory to output jasmine files to.")
@@ -54,7 +55,7 @@ object SbtJasminePlugin extends Plugin {
     if (errorCount > 0) throw new JasmineFailedException(errorCount.toInt)
   }
 
-  def jasmineGenRunnerTask = (jasmineOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, confs, s) =>
+  def jasmineGenRunnerTask = (jasmineOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineRequireConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, requireConfs, s) =>
 
     s.log.info("generating runner...")
 
@@ -66,14 +67,14 @@ object SbtJasminePlugin extends Plugin {
       testRoot <- testJsRoots
       appJsRoot <- appJsRoots
       appJsLibRoot <- appJsLibRoots
-      conf <- confs
+      requireConf <- requireConfs
     } {
       val runnerString = loadRunnerTemplate.format(
         testRoot.getAbsolutePath,
         appJsRoot.getAbsolutePath,
         appJsLibRoot.getAbsolutePath,
-        conf.getAbsolutePath,
-        generateSpecIncludes(testRoot)
+        requireConf.getAbsolutePath,
+        generateSpecRequires(testRoot)
       )
 
       IO.write(outDir / "runner.html", runnerString)
@@ -96,6 +97,16 @@ object SbtJasminePlugin extends Plugin {
     val specsDir = testRoot / "specs" ** "*spec.js"
 
     specsDir.get.map("""<script type="text/javascript" src="""" + _.getAbsolutePath + """"></script>""").mkString("\n")
+  }
+
+  def generateSpecRequires(testRoot: File) = {
+    val specFiles = testRoot / "specs" ** "*spec.js"
+
+    val specModules = specFiles.get.map { path =>
+      testRoot.toURI().relativize(path.toURI()).getPath
+    }.map(_.replaceFirst(".js$", ""))
+
+    specModules.map("'" + _ + "'").mkString(", ")
   }
 
   def bundledScript(fileName: String) = {
@@ -122,6 +133,7 @@ object SbtJasminePlugin extends Plugin {
     appJsLibDir := Seq(),
     jasmineTestDir := Seq(),
     jasmineConfFile := Seq(),
+    jasmineRequireConfFile := Seq(),
     jasmineGenRunner <<= jasmineGenRunnerTask,
     jasmineOutputDir <<= (target in test) { d => d / "jasmine"}
   )

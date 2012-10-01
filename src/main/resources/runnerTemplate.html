@@ -9,7 +9,7 @@
     <script type="text/javascript" src="jasmine.js"></script>
     <script type="text/javascript" src="jasmine-html.js"></script>
 
-    <!-- test dependencies + spec files go here -->
+    <!-- Setup paths for Jasmine -->
 
     <script>
         if (!this.EnvJasmine) {
@@ -21,33 +21,25 @@
         EnvJasmine.specsDir = EnvJasmine.testDir + "specs/";
         EnvJasmine.rootDir = "%s" + "/";
         EnvJasmine.libDir = "%s" + "/";
-
-        function load(fileUrl) {
-            var headTag = document.getElementsByTagName('HEAD').item(0);
-            var scriptTag = document.createElement('script');
-            scriptTag.type = "text/javascript";
-            scriptTag.src=fileUrl;
-            scriptTag.async=false;
-            headTag.appendChild( scriptTag );
-        }
-
-        EnvJasmine.load = load;
-        EnvJasmine.loadGlobal = load;
     </script>
+
+    <!-- require and its config -->
+
+    <script type="text/javascript" src="require-2.0.2.js"></script>
 
     <script type="text/javascript" src="%s"></script>
 
-    %s
+    <script>
+	require([%s],
+	        function() {
+	            //run tests
+	            jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+	            jasmine.getEnv().execute();
+	        });
 
+    </script>
 </head>
 <body>
-
-<script type="text/javascript">
-    window.onload = function() {
-        jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-        jasmine.getEnv().execute();
-    }
-</script>
 
 </body>
 </html>
