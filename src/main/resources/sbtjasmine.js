@@ -169,9 +169,11 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile, envHtml) {
             EnvJasmine.load = EnvJasmine.loadFactory(EnvJasmine.currentScope);
             EnvJasmine.specFile = EnvJasmine.specs[i];
             print("running spec:" + EnvJasmine.specFile);
-            fileIn = new FileReader(EnvJasmine.specFile);
-            print("loading spec file");
-            EnvJasmine.cx.evaluateReader(EnvJasmine.currentScope, fileIn, EnvJasmine.specs[i], 0, null);
+            // TODO: allow 'inline' loading when AMD disabled
+            // fileIn = new FileReader(EnvJasmine.specFile);
+            // EnvJasmine.cx.evaluateReader(EnvJasmine.currentScope, fileIn, EnvJasmine.specs[i], 0, null);
+            var specLoader = 'require(["' + EnvJasmine.specFile + '"]);';
+            EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, specLoader, 'Loading '+EnvJasmine.specFile, 0, null);
             print("running the jasmine tests");
             var windowLoader = 'window.location.assign(["file://", "'+envHtml+'"].join(EnvJasmine.SEPARATOR));';
             EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, windowLoader, 'Executing '+EnvJasmine.specs[i], 0, null);
@@ -179,7 +181,10 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile, envHtml) {
             print('error running jasmine test: ' + EnvJasmine.specs[i] + "\n error was: " + e );
         }
         finally {
-            fileIn.close();
+            if (fileIn) {
+              fileIn.close();
+              fileIn = null;
+            }
         }
     }
 
