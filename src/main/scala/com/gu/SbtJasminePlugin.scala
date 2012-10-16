@@ -14,6 +14,7 @@ object SbtJasminePlugin extends Plugin {
   lazy val appJsDir = SettingKey[Seq[File]]("appJsDir", "the root directory where the application js files live")
   lazy val appJsLibDir = SettingKey[Seq[File]]("appJsLibDir", "the root directory where the application's js library files live")
   lazy val jasmineConfFile = SettingKey[Seq[File]]("jasmineConfFile", "the js file that loads your js context and configures jasmine")
+  lazy val jasmineRequireJsFile = SettingKey[Seq[File]]("jasmineRequireJsFile", "the require.js file used by the application")
   lazy val jasmineRequireConfFile = SettingKey[Seq[File]]("jasmineRequireConfFile", "the js file that configures require to find your dependencies")
   lazy val jasmine = TaskKey[Unit]("jasmine", "Run jasmine tests")
 
@@ -55,7 +56,7 @@ object SbtJasminePlugin extends Plugin {
     if (errorCount > 0) throw new JasmineFailedException(errorCount.toInt)
   }
 
-  def jasmineGenRunnerTask = (jasmineOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineRequireConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, requireConfs, s) =>
+  def jasmineGenRunnerTask = (jasmineOutputDir, jasmineTestDir, appJsDir, appJsLibDir, jasmineRequireJsFile, jasmineRequireConfFile, streams) map { (outDir, testJsRoots, appJsRoots, appJsLibRoots, requireJss, requireConfs, s) =>
 
     s.log.info("generating runner...")
 
@@ -67,12 +68,14 @@ object SbtJasminePlugin extends Plugin {
       testRoot <- testJsRoots
       appJsRoot <- appJsRoots
       appJsLibRoot <- appJsLibRoots
+      requireJs <- requireJss
       requireConf <- requireConfs
     } {
       val runnerString = loadRunnerTemplate.format(
         testRoot.getAbsolutePath,
         appJsRoot.getAbsolutePath,
         appJsLibRoot.getAbsolutePath,
+        requireJs.getAbsolutePath,
         requireConf.getAbsolutePath,
         generateSpecRequires(testRoot)
       )
@@ -133,6 +136,7 @@ object SbtJasminePlugin extends Plugin {
     appJsLibDir := Seq(),
     jasmineTestDir := Seq(),
     jasmineConfFile := Seq(),
+    jasmineRequireJsFile := Seq(),
     jasmineRequireConfFile := Seq(),
     jasmineGenRunner <<= jasmineGenRunnerTask,
     jasmineOutputDir <<= (target in test) { d => d / "jasmine"}
