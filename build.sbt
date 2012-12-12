@@ -4,7 +4,7 @@ name := "sbt-jasmine-plugin"
 
 organization := "com.gu"
 
-version := "0.7"
+version := "0.8-SNAPSHOT"
 
 libraryDependencies += "org.mozilla" % "rhino" % "1.7R3"
 
