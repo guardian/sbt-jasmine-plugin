@@ -69,7 +69,7 @@ EnvJasmine.resourceLoadFactory = function(scope) {
 EnvJasmine.loadGlobal = EnvJasmine.loadFactory(EnvJasmine.topLevelScope);
 EnvJasmine.loadLibGlobal = EnvJasmine.resourceLoadFactory(EnvJasmine.topLevelScope);
 
-EnvJasmine.environment = 'UNIX';
+EnvJasmine.environment = java.lang.System.getProperty("os.name").indexOf('Windows') > -1 ?  'WIN' : 'UNIX';
 
 function setupDirs(appJsRoot, appJsLibRoot, testRoot, confFile) {
 
@@ -172,10 +172,18 @@ function runTests(appJsRoot, appJsLibRoot, testRoot, confFile, envHtml) {
             // TODO: allow 'inline' loading when AMD disabled
             // fileIn = new FileReader(EnvJasmine.specFile);
             // EnvJasmine.cx.evaluateReader(EnvJasmine.currentScope, fileIn, EnvJasmine.specs[i], 0, null);
-            var specLoader = 'require(["' + EnvJasmine.specFile + '"]);';
+            var specPathOsSpecific = "" + EnvJasmine.specFile; // make sure it's a javascript string object rather than a java object
+            if(EnvJasmine.environment == 'WIN') {
+                specPathOsSpecific = specPathOsSpecific.replace(/\\/g, "\\\\");
+            }
+            var specLoader = 'require(["' + specPathOsSpecific + '"]);';
             EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, specLoader, 'Loading '+EnvJasmine.specFile, 0, null);
             print("running the jasmine tests");
-            var windowLoader = 'window.location.assign(["file://", "'+envHtml+'"].join(EnvJasmine.SEPARATOR));';
+            var envHtmlOsSpecific = '' + envHtml; // make sure it's a javascript string object rather than a java object
+            if(EnvJasmine.environment == 'WIN') {
+                envHtmlOsSpecific = '/' + envHtmlOsSpecific.replace(/\\/g, "\\\\");
+            }
+            var windowLoader = 'window.location.assign("file://' + envHtmlOsSpecific + '")';
             EnvJasmine.cx.evaluateString(EnvJasmine.currentScope, windowLoader, 'Executing '+EnvJasmine.specs[i], 0, null);
         } catch (e) {
             print('error running jasmine test: ' + EnvJasmine.specs[i] + "\n error was: " + e );
