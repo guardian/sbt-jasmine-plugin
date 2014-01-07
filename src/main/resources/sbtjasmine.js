@@ -8,7 +8,6 @@
  http://www.mozilla.org/rhino/
  http://www.envjs.com/
  http://pivotal.github.com/jasmine/
- https://github.com/velesin/jasmine-jquery
 */
 
 importPackage(java.lang);
