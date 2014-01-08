@@ -64,6 +64,8 @@ object SbtJasminePlugin extends Plugin {
     outputBundledResource("jasmine/jasmine-html.js", outDir / "jasmine-html.js")
     outputBundledResource("jasmine/jasmine.css", outDir / "jasmine.css")
 
+    val isWin = java.lang.System.getProperty("os.name").indexOf("Windows") > -1;
+
     for {
       testRoot <- testJsRoots
       appJsRoot <- appJsRoots
@@ -71,19 +73,32 @@ object SbtJasminePlugin extends Plugin {
       requireJs <- requireJss
       requireConf <- requireConfs
     } {
-      val runnerString = loadRunnerTemplate.format(
-        testRoot.getAbsolutePath,
-        appJsRoot.getAbsolutePath,
-        appJsLibRoot.getAbsolutePath,
-        requireJs.getAbsolutePath,
-        requireConf.getAbsolutePath,
-        generateSpecRequires(testRoot)
-      )
+      var runnerString = "";
+
+      if(isWin) {
+        runnerString = loadRunnerTemplate.format(
+          "file:///" + testRoot.getAbsolutePath.replaceAll("\\\\", "\\\\\\\\"),
+          "file:///" + appJsRoot.getAbsolutePath.replaceAll("\\\\", "\\\\\\\\"),
+          "file:///" + appJsLibRoot.getAbsolutePath.replaceAll("\\\\", "\\\\\\\\"),
+          "file:///" + requireJs.getAbsolutePath.replaceAll("\\\\", "\\\\\\\\"),
+          "file:///" + requireConf.getAbsolutePath.replaceAll("\\\\", "\\\\\\\\"),
+          generateSpecRequires(testRoot)
+        )
+      } else{
+        runnerString = loadRunnerTemplate.format(
+          testRoot.getAbsolutePath,
+          appJsRoot.getAbsolutePath,
+          appJsLibRoot.getAbsolutePath,
+          requireJs.getAbsolutePath,
+          requireConf.getAbsolutePath,
+          generateSpecRequires(testRoot)
+        )
+      }
 
       IO.write(outDir / "runner.html", runnerString)
 
     }
-    s.log.info("output to: file://" + (outDir / "runner.html" getAbsolutePath) )
+    s.log.info("output to: file://" + (if(isWin) "/" else "") + (outDir / "runner.html" getAbsolutePath) )
 
   }
 
