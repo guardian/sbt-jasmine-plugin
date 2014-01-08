@@ -1,3 +1,9 @@
+**This plugin is no-longer being actively maintained by the Guardian**
+
+
+----------------------------------------------------------------
+
+
 sbt-jasmine-plugin
 =================
 
@@ -10,7 +16,7 @@ The most convenient way of using this plugin is to add a source dependency in a 
 
 ```
 lazy val plugins = Project("plugins", file("."))
-    .dependsOn(uri("git://github.com/guardian/sbt-jasmine-plugin.git#1.0"))
+    .dependsOn(uri("git://github.com/guardian/sbt-jasmine-plugin.git#1.1"))
 ```
 
 you will also need to import the plugin's settings in the usual way:
