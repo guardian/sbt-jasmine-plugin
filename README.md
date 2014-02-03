@@ -1,4 +1,4 @@
-**This plugin is no-longer being actively maintained by the Guardian**
+**This plugin is no-longer being actively maintained by the Guardian.  Please see visit its [new home](https://github.com/barnesjd/sbt-jasmine-plugin)**
 
 
 ----------------------------------------------------------------

@@ -6,10 +6,14 @@ organization := "com.gu"
 
 version := "0.8-SNAPSHOT"
 
-libraryDependencies += "org.mozilla" % "rhino" % "1.7R3"
+libraryDependencies += "org.mozilla" % "rhino" % "1.7R4"
 
 // don't bother publishing javadoc
 publishArtifact in (Compile, packageDoc) := false
+
+scalaVersion := "2.9.2"
+
+scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 publishTo <<= (version) { version: String =>
     val publishType = if (version.endsWith("SNAPSHOT")) "snapshots" else "releases"
